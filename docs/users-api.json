@@ -1,0 +1,123 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Users API",
+        "description": "Users API",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:3000"
+        }
+    ],
+    "paths": {
+        "/api/users": {
+            "post" : {
+                "description": "Register",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "John Doe": {
+                                    "description": "Register User John Doe",
+                                    "value": {
+                                        "email": "johndoe@example.com",
+                                        "password": "password123",
+                                        "name": "John Doe"
+                                    }
+                                }
+                            },
+                            "schema": {
+                                "type": "object",
+                                "required": ["email", "password", "name"],
+                                "properties": {
+                                   "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "minLength": 8
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data":{
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "number"
+                                                },
+                                                "email": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "error": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+
+        "/api/users/login": {
+            "post" : {
+                "description": "Login",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                
+                    }    
+                }
+            }
+        },
+
+        "/api/users/profile": {
+            "get" : {
+                "description": "Get profile"
+            },
+            "put" : {
+                "description": "Update profile"
+            }
+        },
+        "/api/users/logout": {
+            "delete" : {
+                "description": "Logout"
+            }
+        }
+    }
