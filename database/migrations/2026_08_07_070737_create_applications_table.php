@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('applications', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('job_id')->constrained('jobs')->onDelete('cascade');
+            $table->text('message')->nullable();
+            $table->enum('status', ['Pending', 'Reviewed', 'Interview', 'Accepted', 'Rejected'])->default('Pending');
+            $table->timestamp('applied_date')->useCurrent();
             $table->timestamps();
         });
     }
