@@ -90,8 +90,8 @@ return response()->json([
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-    {
-        $application = Application::where('user_id', $request->user()->id)
+{
+    $application = Application::where('user_id', $request->user()->id)
         ->findOrFail($id);
 
     $validated = $request->validate([
@@ -99,7 +99,21 @@ return response()->json([
         'message' => ['sometimes', 'nullable', 'string'],
     ]);
 
+    $oldStatus = $application->status;
+
     $application->update($validated);
+
+    if (
+        isset($validated['status']) &&
+        $validated['status'] !== $oldStatus
+    ) {
+        Notification::create([
+            'user_id' => $application->user_id,
+            'type' => 'application_status_updated',
+            'message' => 'Status lamaran Anda berubah menjadi ' . $application->status . '.',
+            'is_read' => false,
+        ]);
+    }
 
     return response()->json([
         'message' => 'Lamaran berhasil diperbarui',
@@ -108,7 +122,7 @@ return response()->json([
             'jobPosting.company'
         ])
     ]);
-    }
+}
 
     /**
      * Remove the specified resource from storage.
