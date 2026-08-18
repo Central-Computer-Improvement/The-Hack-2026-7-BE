@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-
 class Application extends Model
 {
     protected $fillable = [
@@ -13,11 +12,11 @@ class Application extends Model
         'job_posting_id',
         'message',
         'status',
-        'applied_at',
+        'applied_date',
     ];
 
     protected $casts = [
-        'applied_at' => 'title'
+        'applied_date' => 'datetime',
     ];
 
     public function user(): BelongsTo
@@ -29,4 +28,5 @@ class Application extends Model
     {
         return $this->belongsTo(JobPosting::class);
     }
+
 }
