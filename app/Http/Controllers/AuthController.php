@@ -55,6 +55,29 @@ class AuthController
         return response()->json($request->user ?? null);
     }
 
+    // Alias for routes expecting `me`
+    public function me(Request $request)
+    {
+        return $this->user($request);
+    }
+
+    public function logout(Request $request)
+    {
+        // Stateless JWT: client should discard token. Respond success.
+        return response()->json(['message' => 'Logged out']);
+    }
+
+    public function refresh(Request $request)
+    {
+        $user = $request->user ?? null;
+        if (! $user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $tokenData = $this->createToken($user);
+        return response()->json(['token' => $tokenData['token'], 'payload' => $tokenData['payload']]);
+    }
+
     protected function createToken(User $user)
     {
         $now = time();

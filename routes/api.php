@@ -20,9 +20,9 @@ Route::group([
 Route::group([
     'middleware' => 'api',
 ], function ($router) {
-    Route::get('profile', [ProfileController::class, 'show']);
-    Route::put('profile', [ProfileController::class, 'update']);
+    Route::get('profile', [ProfileController::class, 'show'])->middleware(\App\Http\Middleware\JwtMiddleware::class);
+    Route::put('profile', [ProfileController::class, 'update'])->middleware(\App\Http\Middleware\JwtMiddleware::class);
 
-    Route::get('recommendations/jobs', [RecommendationController::class, 'getJobRecommendations']);
-    Route::get('recommendations/courses', [RecommendationController::class, 'getCourseRecommendations']);
+    Route::get('recommendations/jobs', [RecommendationController::class, 'getJobRecommendations'])->middleware(\App\Http\Middleware\JwtMiddleware::class);
+    Route::get('recommendations/courses', [RecommendationController::class, 'getCourseRecommendations'])->middleware(\App\Http\Middleware\JwtMiddleware::class);
 });
