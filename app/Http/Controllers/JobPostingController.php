@@ -11,15 +11,37 @@ class JobPostingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $jobPostings = JobPosting::with('company')->get();
+    public function index(Request $request)
+{
+    $query = JobPosting::with('company');
 
-        return response()->json([
-            'message' => 'Daftar lowongan berhasil diambil',
-            'data' => $jobPostings
-        ]);
+    // Search berdasarkan judul atau deskripsi
+    if ($request->filled('search')) {
+        $search = $request->search;
+
+        $query->where(function ($q) use ($search) {
+            $q->where('title', 'like', "%{$search}%")
+              ->orWhere('description', 'like', "%{$search}%");
+        });
     }
+
+    // Filter berdasarkan lokasi
+    if ($request->filled('location')) {
+        $query->where('location', 'like', "%{$request->location}%");
+    }
+
+    // Filter berdasarkan tipe pekerjaan
+    if ($request->filled('employment_type')) {
+        $query->where('employment_type', $request->employment_type);
+    }
+
+    $jobPostings = $query->get();
+
+    return response()->json([
+        'message' => 'Daftar lowongan berhasil diambil',
+        'data' => $jobPostings
+    ]);
+}
 
     /**
      * Store a newly created resource in storage.
