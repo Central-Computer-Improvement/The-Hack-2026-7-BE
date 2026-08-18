@@ -8,9 +8,16 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecommendationController;
 
-Route::apiResource('job-postings', JobPostingController::class);
+
+Route::get('/job-postings', [JobPostingController::class, 'index']);
+Route::get('/job-postings/{job_posting}', [JobPostingController::class, 'show']);
 
 Route::middleware('jwt')->group(function () {
+    Route::post('/job-postings', [JobPostingController::class, 'store']);
+    Route::put('/job-postings/{job_posting}', [JobPostingController::class, 'update']);
+    Route::patch('/job-postings/{job_posting}', [JobPostingController::class, 'update']);
+    Route::delete('/job-postings/{job_posting}', [JobPostingController::class, 'destroy']);
+
     Route::apiResource('applications', ApplicationController::class);
 
     Route::get('/notifications', [NotificationController::class, 'index']);
