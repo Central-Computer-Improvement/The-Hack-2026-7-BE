@@ -55,7 +55,6 @@ class AuthController
         return response()->json($request->user ?? null);
     }
 
-    // Alias for routes expecting `me`
     public function me(Request $request)
     {
         return $this->user($request);
@@ -63,7 +62,6 @@ class AuthController
 
     public function logout(Request $request)
     {
-        // Stateless JWT: client should discard token. Respond success.
         return response()->json(['message' => 'Logged out']);
     }
 

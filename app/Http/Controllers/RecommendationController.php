@@ -113,9 +113,9 @@ class RecommendationController
 
         $prompt = "You are an assistant that recommends suitable job titles and short reasons based on a user's profile.\n";
 
-        $prompt .= "User: name=" . ($user->name ?? 'unknown')
-            . ", role=" . ($user->role ?? 'unknown')
-            . ", education=" . ($user->education ?? 'unknown')
+        $prompt .= "User: name=" . ($user->name ?? 'someone')
+            . ", role=" . ($user->role ?? 'someone')
+            . ", education=" . ($user->education ?? 'someone')
             . ", skills=" . implode(', ', $skills) . "\n";
 
         $prompt .= "Return ONLY a valid JSON array. Do not use markdown or code fences.\n";
@@ -149,9 +149,9 @@ class RecommendationController
 
         $prompt = "You are an assistant that recommends training courses for a user to reach target career goals.\n";
 
-        $prompt .= "User: name=" . ($user->name ?? 'unknown')
-            . ", role=" . ($user->role ?? 'unknown')
-            . ", education=" . ($user->education ?? 'unknown')
+        $prompt .= "User: name=" . ($user->name ?? 'someone')
+            . ", role=" . ($user->role ?? 'someone')
+            . ", education=" . ($user->education ?? 'someone')
             . ", skills=" . implode(', ', $skills) . "\n";
 
         $prompt .= "Return ONLY a valid JSON array. Do not use markdown or code fences.\n";

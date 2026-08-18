@@ -31,7 +31,6 @@ class ProfileController extends Controller
             'phone' => 'sometimes|nullable|string|max:20',
             'education' => 'sometimes|nullable|string|max:100',
             'bio' => 'sometimes|nullable|string',
-            // Accept array of skill names (strings). Controller will create missing skills.
             'skills' => 'sometimes|array',
             'skills.*' => 'string|max:100',
         ]);
@@ -52,7 +51,6 @@ class ProfileController extends Controller
                     continue;
                 }
 
-                // try case-insensitive match first
                 $skill = Skill::whereRaw('LOWER(name) = ?', [mb_strtolower($name)])->first();
                 if (! $skill) {
                     $skill = Skill::create(['name' => $name]);
