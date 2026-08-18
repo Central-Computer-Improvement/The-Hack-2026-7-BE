@@ -12,36 +12,40 @@ class JobPostingController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-{
-    $query = JobPosting::with('company');
+    {
+        $query = JobPosting::with('company');
 
-    // Search berdasarkan judul atau deskripsi
-    if ($request->filled('search')) {
-        $search = $request->search;
+        if ($request->filled('search')) {
+            $search = $request->search;
 
-        $query->where(function ($q) use ($search) {
-            $q->where('title', 'like', "%{$search}%")
-              ->orWhere('description', 'like', "%{$search}%");
-        });
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('location')) {
+            $query->where(
+                'location',
+                'like',
+                "%{$request->location}%"
+            );
+        }
+
+        if ($request->filled('employment_type')) {
+            $query->where(
+                'employment_type',
+                $request->employment_type
+            );
+        }
+
+        $jobPostings = $query->latest()->paginate(10);
+
+        return response()->json([
+            'message' => 'Daftar lowongan berhasil diambil',
+            'data' => $jobPostings
+        ]);
     }
-
-    // Filter berdasarkan lokasi
-    if ($request->filled('location')) {
-        $query->where('location', 'like', "%{$request->location}%");
-    }
-
-    // Filter berdasarkan tipe pekerjaan
-    if ($request->filled('employment_type')) {
-        $query->where('employment_type', $request->employment_type);
-    }
-
-    $jobPostings = $query->get();
-
-    return response()->json([
-        'message' => 'Daftar lowongan berhasil diambil',
-        'data' => $jobPostings
-    ]);
-}
 
     /**
      * Store a newly created resource in storage.
@@ -49,24 +53,24 @@ class JobPostingController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-        'company_id' => ['required', 'exists:companies,id'],
-        'title' => ['required', 'string', 'max:150'],
-        'description' => ['required', 'string'],
-        'location' => ['required', 'string', 'max:150'],
-        'salary' => ['required', 'numeric', 'min:0'],
-        'employment_type' => [
-            'required',
-            Rule::in(['Full Time', 'Part Time', 'Internship', 'Contract']),
-        ],
-        'closing_date' => ['required', 'date'],
-    ]);
+            'company_id' => ['required', 'exists:companies,id'],
+            'title' => ['required', 'string', 'max:150'],
+            'description' => ['required', 'string'],
+            'location' => ['required', 'string', 'max:150'],
+            'salary' => ['required', 'numeric', 'min:0'],
+            'employment_type' => [
+                'required',
+                Rule::in(['Full Time', 'Part Time', 'Internship', 'Contract']),
+            ],
+            'closing_date' => ['required', 'date'],
+        ]);
 
-    $jobPosting = JobPosting::create($validated);
+        $jobPosting = JobPosting::create($validated);
 
-    return response()->json([
-        'message' => 'Lowongan berhasil dibuat',
-        'data' => $jobPosting
-    ], 201);
+        return response()->json([
+            'message' => 'Lowongan berhasil dibuat',
+            'data' => $jobPosting
+        ], 201);
     }
 
     /**
@@ -87,27 +91,27 @@ class JobPostingController extends Controller
      */
     public function update(Request $request, string $id)
     {
-         $jobPosting = JobPosting::findOrFail($id);
+        $jobPosting = JobPosting::findOrFail($id);
 
-    $validated = $request->validate([
-        'company_id' => ['sometimes', 'exists:companies,id'],
-        'title' => ['sometimes', 'string', 'max:150'],
-        'description' => ['sometimes', 'string'],
-        'location' => ['sometimes', 'string', 'max:150'],
-        'salary' => ['sometimes', 'numeric', 'min:0'],
-        'employment_type' => [
-            'sometimes',
-            Rule::in(['Full Time', 'Part Time', 'Internship', 'Contract']),
-        ],
-        'closing_date' => ['sometimes', 'date'],
-    ]);
+        $validated = $request->validate([
+            'company_id' => ['sometimes', 'exists:companies,id'],
+            'title' => ['sometimes', 'string', 'max:150'],
+            'description' => ['sometimes', 'string'],
+            'location' => ['sometimes', 'string', 'max:150'],
+            'salary' => ['sometimes', 'numeric', 'min:0'],
+            'employment_type' => [
+                'sometimes',
+                Rule::in(['Full Time', 'Part Time', 'Internship', 'Contract']),
+            ],
+            'closing_date' => ['sometimes', 'date'],
+        ]);
 
-    $jobPosting->update($validated);
+        $jobPosting->update($validated);
 
-    return response()->json([
-        'message' => 'Lowongan berhasil diperbarui',
-        'data' => $jobPosting->fresh()->load('company')
-    ]);
+        return response()->json([
+            'message' => 'Lowongan berhasil diperbarui',
+            'data' => $jobPosting->fresh()->load('company')
+        ]);
     }
 
     /**
@@ -115,7 +119,7 @@ class JobPostingController extends Controller
      */
     public function destroy(string $id)
     {
-        $jobPosting = jobPosting::findOrFail($id);
+        $jobPosting = JobPosting::findOrFail($id);
 
         $jobPosting->delete();
 

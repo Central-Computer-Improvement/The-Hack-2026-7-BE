@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Application;
+use App\Models\Notification;
+use App\Models\JobPosting;
 
 class ApplicationController extends Controller
 {
