@@ -31,8 +31,9 @@ class ProfileController extends Controller
             'phone' => 'sometimes|nullable|string|max:20',
             'education' => 'sometimes|nullable|string|max:100',
             'bio' => 'sometimes|nullable|string',
+            // Accept array of skill names (strings). Controller will create missing skills.
             'skills' => 'sometimes|array',
-            'skills.*' => 'integer|exists:skills,id',
+            'skills.*' => 'string|max:100',
         ]);
 
         if ($validator->fails()) {
@@ -42,7 +43,25 @@ class ProfileController extends Controller
         $user->update($validator->validated());
 
         if ($request->has('skills')) {
-            $user->skills()->sync($request->input('skills'));
+            $skillNames = $request->input('skills', []);
+            $skillIds = [];
+
+            foreach ($skillNames as $name) {
+                $name = trim((string) $name);
+                if ($name === '') {
+                    continue;
+                }
+
+                // try case-insensitive match first
+                $skill = Skill::whereRaw('LOWER(name) = ?', [mb_strtolower($name)])->first();
+                if (! $skill) {
+                    $skill = Skill::create(['name' => $name]);
+                }
+
+                $skillIds[] = $skill->id;
+            }
+
+            $user->skills()->sync(array_values(array_unique($skillIds)));
         }
 
         return response()->json([
