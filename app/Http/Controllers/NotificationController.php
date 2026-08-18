@@ -11,18 +11,16 @@ class NotificationController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {
-        $userId = $request->query('user_id');
+{
+    $notifications = Notification::where('user_id', $request->user()->id)
+        ->latest()
+        ->get();
 
-        $notifications = Notification::where('user_id', $userId)
-            ->latest()
-            ->get();
-
-        return response()->json([
-            'message' => 'Daftar notifikasi berhasil diambil',
-            'data' => $notifications
-        ]);
-    }
+    return response()->json([
+        'message' => 'Daftar notifikasi berhasil diambil',
+        'data' => $notifications
+    ]);
+}
 
     /**
      * Store a newly created resource in storage.
@@ -45,7 +43,8 @@ class NotificationController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $notification = Notification::findOrFail($id);
+        $notification = Notification::where('user_id', $request->user()->id)
+    ->findOrFail($id);
 
     $notification->update([
         'is_read' => true,

@@ -12,54 +12,73 @@ class ApplicationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $applications = Application::with([
-            'user',
-            'jobPosting.company'
-        ])->get();
+    public function index(Request $request)
+{
+    $applications = Application::with([
+        'user',
+        'jobPosting.company'
+    ])
+    ->where('user_id', $request->user()->id)
+    ->get();
 
-        return response()->json([
-            'message' => 'Daftar lamaran berhasil diambil',
-            'data' => $applications
-        ]);
-    }
+    return response()->json([
+        'message' => 'Daftar lamaran berhasil diambil',
+        'data' => $applications
+    ]);
+}
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-         $validated = $request->validate([
-        'user_id' => ['required', 'exists:users,id'],
+{
+    $validated = $request->validate([
         'job_posting_id' => ['required', 'exists:job_postings,id'],
         'message' => ['nullable', 'string'],
-        'status' => ['nullable', 'in:Pending,Reviewed,Interview,Accepted,Rejected'],
     ]);
+
+    $existingApplication = Application::where('user_id', $request->user()->id)
+        ->where('job_posting_id', $validated['job_posting_id'])
+        ->first();
+
+    if ($existingApplication) {
+        return response()->json([
+            'message' => 'Anda sudah melamar lowongan ini'
+        ], 409);
+    }
 
     $application = Application::create([
-        'user_id' => $validated['user_id'],
-        'job_posting_id' => $validated['job_posting_id'],
-        'message' => $validated['message'] ?? null,
-        'status' => $validated['status'] ?? 'Pending',
-        'applied_date' => now(),
-    ]);
+    'user_id' => $request->user()->id,
+    'job_posting_id' => $validated['job_posting_id'],
+    'message' => $validated['message'] ?? null,
+    'status' => 'Pending',
+    'applied_date' => now(),
+]);
 
-    return response()->json([
-        'message' => 'Lamaran berhasil dibuat',
-        'data' => $application->load(['user', 'jobPosting'])
-    ], 201);
-    }
+Notification::create([
+    'user_id' => $request->user()->id,
+    'type' => 'application_created',
+    'message' => 'Lamaran Anda berhasil dikirim.',
+    'is_read' => false,
+]);
+
+return response()->json([
+    'message' => 'Lamaran berhasil dibuat',
+    'data' => $application->load(['user', 'jobPosting'])
+], 201);
+}
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
         $application = Application::with([
-        'user',
-        'jobPosting.company'
-    ])->findOrFail($id);
+             'user',
+             'jobPosting.company'
+    ])
+        ->where('user_id', $request->user()->id)
+        ->findOrFail($id);
 
     return response()->json([
         'message' => 'Detail lamaran berhasil diambil',
@@ -72,7 +91,8 @@ class ApplicationController extends Controller
      */
     public function update(Request $request, string $id)
     {
-    $application = Application::findOrFail($id);
+        $application = Application::where('user_id', $request->user()->id)
+        ->findOrFail($id);
 
     $validated = $request->validate([
         'status' => ['sometimes', 'in:Pending,Reviewed,Interview,Accepted,Rejected'],
@@ -93,9 +113,10 @@ class ApplicationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
-    $application = Application::findOrFail($id);
+    $application = Application::where('user_id', $request->user()->id)
+        ->findOrFail($id);
 
     $application->delete();
 
