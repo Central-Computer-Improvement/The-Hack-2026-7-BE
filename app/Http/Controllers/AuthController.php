@@ -24,7 +24,7 @@ class AuthController
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => password_hash($data['password'], PASSWORD_BCRYPT),
+            'password' => $data['password'],
         ]);
 
         $tokenData = $this->createToken($user);
