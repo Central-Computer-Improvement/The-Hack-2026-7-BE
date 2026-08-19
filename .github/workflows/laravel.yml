@@ -76,7 +76,7 @@ jobs:
       - name: Clear Laravel configuration
         run: |
           php artisan config:clear
-          php artisan cache:clear
+          
 
       - name: Show database configuration
         run: php artisan config:show database.connections.mysql
