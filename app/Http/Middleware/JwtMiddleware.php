@@ -13,6 +13,7 @@ class JwtMiddleware
     public function handle(Request $request, Closure $next)
     {
         $authHeader = $request->header('Authorization');
+
         if (! $authHeader || ! preg_match('/Bearer\s+(\S+)/', $authHeader, $m)) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
@@ -23,7 +24,10 @@ class JwtMiddleware
         try {
             $decoded = JWT::decode($token, new Key($secret, 'HS256'));
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Invalid token', 'error' => $e->getMessage()], 401);
+            return response()->json([
+                'message' => 'Invalid token',
+                'error' => $e->getMessage()
+            ], 401);
         }
 
         $userId = $decoded->sub ?? null;

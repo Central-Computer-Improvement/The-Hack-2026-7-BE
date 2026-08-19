@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Illuminate\Http\Request;
 
 class AuthController
@@ -28,7 +29,11 @@ class AuthController
 
         $tokenData = $this->createToken($user);
 
-        return response()->json(['token' => $tokenData['token'], 'payload' => $tokenData['payload'], 'user' => $user], 201);
+        return response()->json([
+            'token' => $tokenData['token'],
+            'payload' => $tokenData['payload'],
+            'user' => $user,
+        ], 201);
     }
 
     public function login(Request $request)
@@ -40,13 +45,18 @@ class AuthController
         }
 
         $user = User::where('email', $data['email'])->first();
+
         if (! $user || ! password_verify($data['password'], $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
         $tokenData = $this->createToken($user);
 
-        return response()->json(['token' => $tokenData['token'], 'payload' => $tokenData['payload'], 'user' => $user]);
+        return response()->json([
+            'token' => $tokenData['token'],
+            'payload' => $tokenData['payload'],
+            'user' => $user,
+        ]);
     }
 
     public function user(Request $request)
@@ -54,10 +64,36 @@ class AuthController
         return response()->json($request->user ?? null);
     }
 
+    public function me(Request $request)
+    {
+        return $this->user($request);
+    }
+
+    public function logout(Request $request)
+    {
+        return response()->json(['message' => 'Logged out']);
+    }
+
+    public function refresh(Request $request)
+    {
+        $user = $request->user ?? null;
+
+        if (! $user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $tokenData = $this->createToken($user);
+
+        return response()->json([
+            'token' => $tokenData['token'],
+            'payload' => $tokenData['payload'],
+        ]);
+    }
+
     protected function createToken(User $user)
     {
         $now = time();
-        $exp = $now + (60 * 60 * 24); // 24 hours
+        $exp = $now + (60 * 60 * 24);
 
         $payload = [
             'sub' => $user->id,
@@ -72,6 +108,9 @@ class AuthController
 
         $token = JWT::encode($payload, $secret, 'HS256');
 
-        return ['token' => $token, 'payload' => $payload];
+        return [
+            'token' => $token,
+            'payload' => $payload,
+        ];
     }
 }
