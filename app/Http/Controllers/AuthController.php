@@ -61,7 +61,7 @@ class AuthController
 
     public function user(Request $request)
     {
-        return response()->json($request->user ?? null);
+        return response()->json($request->user());
     }
 
     public function me(Request $request)
@@ -76,7 +76,7 @@ class AuthController
 
     public function refresh(Request $request)
     {
-        $user = $request->user ?? null;
+        $user = $request->user();
 
         if (! $user) {
             return response()->json(['message' => 'Unauthorized'], 401);

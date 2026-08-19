@@ -99,7 +99,7 @@ class RecommendationController
 
     public function getJobRecommendations(Request $request)
     {
-        $user = $request->user ?? null;
+        $user = $request->user();
 
         if (! $user) {
             return response()->json([
@@ -135,7 +135,7 @@ class RecommendationController
 
     public function getCourseRecommendations(Request $request)
     {
-        $user = $request->user ?? null;
+        $user = $request->user();
 
         if (! $user) {
             return response()->json([
