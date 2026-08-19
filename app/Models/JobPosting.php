@@ -12,6 +12,7 @@ class JobPosting extends Model
         'company_id',
         'title',
         'description',
+        'category',
         'location',
         'salary',
         'employment_type',

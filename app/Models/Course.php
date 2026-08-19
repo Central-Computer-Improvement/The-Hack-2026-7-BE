@@ -13,10 +13,20 @@ class Course extends Model
     protected $fillable = [
         'skill_id',
         'title',
+        'category',
+        'format',
+        'duration',
+        'rating',
+        'thumbnail_url',
+        'video_url',
         'provider',
         'location',
         'description',
         'link',
+    ];
+
+    protected $casts = [
+        'rating' => 'decimal:1',
     ];
 
     public function skill(): BelongsTo

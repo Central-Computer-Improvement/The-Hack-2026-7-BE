@@ -26,6 +26,7 @@ class JobsSeeder extends Seeder
         $jobs = [
             [
                 'title' => 'Frontend Developer',
+                'category' => 'Teknologi & Informasi',
                 'description' => 'Membangun antarmuka web yang responsif dan cepat bersama tim produk, berkolaborasi erat dengan desainer UI/UX. Menguasai React dan TypeScript menjadi nilai tambah.',
                 'location' => 'Bandung',
                 'salary' => 4500000,
@@ -33,6 +34,7 @@ class JobsSeeder extends Seeder
             ],
             [
                 'title' => 'Backend Engineer',
+                'category' => 'Teknologi & Informasi',
                 'description' => 'Merancang dan memelihara REST API serta skema database untuk platform marketplace yang sedang berkembang pesat.',
                 'location' => 'Remote',
                 'salary' => 6000000,
@@ -40,6 +42,7 @@ class JobsSeeder extends Seeder
             ],
             [
                 'title' => 'UI/UX Designer',
+                'category' => 'Grafik & Desain',
                 'description' => 'Merancang wireframe, prototipe, dan design system untuk aplikasi mobile banking bersama tim produk.',
                 'location' => 'Jakarta',
                 'salary' => 3800000,
@@ -47,6 +50,7 @@ class JobsSeeder extends Seeder
             ],
             [
                 'title' => 'Data Analyst',
+                'category' => 'Analisa Data',
                 'description' => 'Mengolah data penjualan menjadi dashboard dan insight yang mudah dipahami tim manajemen.',
                 'location' => 'Yogyakarta',
                 'salary' => 5200000,
@@ -54,6 +58,7 @@ class JobsSeeder extends Seeder
             ],
             [
                 'title' => 'Social Media Specialist',
+                'category' => 'Digital Marketing',
                 'description' => 'Menyusun kalender konten dan mengelola akun media sosial brand fashion lokal agar makin dikenal luas.',
                 'location' => 'Surabaya',
                 'salary' => 3200000,
@@ -61,6 +66,7 @@ class JobsSeeder extends Seeder
             ],
             [
                 'title' => 'Mobile App Developer',
+                'category' => 'Teknologi & Informasi',
                 'description' => 'Mengembangkan aplikasi mobile lintas platform (Flutter) untuk startup logistik yang sedang berkembang pesat.',
                 'location' => 'Bandung',
                 'salary' => 7000000,

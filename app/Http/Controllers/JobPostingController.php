@@ -32,6 +32,10 @@ class JobPostingController extends Controller
             );
         }
 
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
         if ($request->filled('employment_type')) {
             $query->where(
                 'employment_type',
@@ -56,6 +60,7 @@ class JobPostingController extends Controller
             'company_id' => ['required', 'exists:companies,id'],
             'title' => ['required', 'string', 'max:150'],
             'description' => ['required', 'string'],
+            'category' => ['nullable', 'string', 'max:100'],
             'location' => ['required', 'string', 'max:150'],
             'salary' => ['required', 'numeric', 'min:0'],
             'employment_type' => [
@@ -97,6 +102,7 @@ class JobPostingController extends Controller
             'company_id' => ['sometimes', 'exists:companies,id'],
             'title' => ['sometimes', 'string', 'max:150'],
             'description' => ['sometimes', 'string'],
+            'category' => ['sometimes', 'nullable', 'string', 'max:100'],
             'location' => ['sometimes', 'string', 'max:150'],
             'salary' => ['sometimes', 'numeric', 'min:0'],
             'employment_type' => [

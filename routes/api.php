@@ -18,6 +18,10 @@ Route::prefix('auth')->group(function () {
 Route::get('/job-postings', [JobPostingController::class, 'index']);
 Route::get('/job-postings/{job_posting}', [JobPostingController::class, 'show']);
 
+// Public course catalogue
+Route::get('/courses', [CourseController::class, 'index']);
+Route::get('/courses/{course}', [CourseController::class, 'show']);
+
 // Protected routes
 Route::middleware('jwt')->group(function () {
     // Authentication
@@ -30,6 +34,11 @@ Route::middleware('jwt')->group(function () {
     Route::put('/job-postings/{job_posting}', [JobPostingController::class, 'update']);
     Route::patch('/job-postings/{job_posting}', [JobPostingController::class, 'update']);
     Route::delete('/job-postings/{job_posting}', [JobPostingController::class, 'destroy']);
+
+    // Courses
+    Route::post('/courses', [CourseController::class, 'store']);
+    Route::put('/courses/{course}', [CourseController::class, 'update']);
+    Route::delete('/courses/{course}', [CourseController::class, 'destroy']);
 
     // Applications
     Route::apiResource('applications', ApplicationController::class);

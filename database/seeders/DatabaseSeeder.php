@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             CompaniesSeeder::class,
             UserSeeder::class,
             JobsSeeder::class,
+            CoursesSeeder::class,
             NotificationSeeder::class,
         ]);
     }
