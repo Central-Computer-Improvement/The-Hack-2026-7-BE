@@ -15,6 +15,16 @@ jobs:
   tests:
     runs-on: ubuntu-latest
 
+    env:
+      APP_ENV: testing
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: skillbridge
+      DB_USERNAME: skillbridge
+      DB_PASSWORD: root
+      DB_URL: ""
+
     services:
       mysql:
         image: mysql:8.0
@@ -32,7 +42,7 @@ jobs:
           --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=5
+          --health-retries=10
 
     steps:
       - name: Checkout repository
@@ -45,49 +55,37 @@ jobs:
           extensions: mbstring, dom, fileinfo, mysql
           coverage: none
 
-      - name: Copy environment file
-        run: cp .env.example .env
-
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Generate application key
-        run: php artisan key:generate
-
-      - name: Configure database
+      - name: Create environment file
         run: |
-          sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=mysql/' .env
-          sed -i 's/^DB_HOST=.*/DB_HOST=127.0.0.1/' .env
-          sed -i 's/^DB_PORT=.*/DB_PORT=3306/' .env
-          sed -i 's/^DB_DATABASE=.*/DB_DATABASE=skillbridge/' .env
-          sed -i 's/^DB_USERNAME=.*/DB_USERNAME=skillbridge/' .env
-          sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=root/' .env
-          sed -i 's/^DB_URL=.*/DB_URL=/' .env
+          cp .env.example .env
 
+          sed -i '/^DB_CONNECTION=/d' .env
+          sed -i '/^DB_HOST=/d' .env
+          sed -i '/^DB_PORT=/d' .env
+          sed -i '/^DB_DATABASE=/d' .env
+          sed -i '/^DB_USERNAME=/d' .env
+          sed -i '/^DB_PASSWORD=/d' .env
+          sed -i '/^DB_URL=/d' .env
+
+      - name: Generate application key
+        run: php artisan key:generate --force
+
+      - name: Clear Laravel configuration
+        run: |
           php artisan config:clear
+          php artisan cache:clear
 
       - name: Show database configuration
-        run: |
-          php artisan config:show database.connections.mysql
+        run: php artisan config:show database.connections.mysql
+
+      - name: Test database connection
+        run: php artisan db:show
 
       - name: Run migrations
-        env:
-          DB_CONNECTION: mysql
-          DB_HOST: 127.0.0.1
-          DB_PORT: 3306
-          DB_DATABASE: skillbridge
-          DB_USERNAME: skillbridge
-          DB_PASSWORD: root
-          DB_URL: ""
         run: php artisan migrate:fresh --force
 
       - name: Run tests
-        env:
-          DB_CONNECTION: mysql
-          DB_HOST: 127.0.0.1
-          DB_PORT: 3306
-          DB_DATABASE: skillbridge
-          DB_USERNAME: skillbridge
-          DB_PASSWORD: root
-          DB_URL: ""
         run: php artisan test
