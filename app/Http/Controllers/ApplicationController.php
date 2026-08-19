@@ -11,19 +11,38 @@ class ApplicationController extends Controller
     /**
      * Display a listing of the resource.
      */
+    /**
+     * Lamaran milik pengguna, atau — bagi akun perusahaan — lamaran yang masuk
+     * ke lowongan perusahaan tersebut.
+     *
+     * Sebelumnya selalu disaring dengan `user_id`, sehingga perusahaan tidak
+     * pernah bisa melihat siapa yang melamar lowongannya.
+     */
     public function index(Request $request)
     {
-        $applications = Application::with([
-            'user',
-            'jobPosting.company',
-        ])
-            ->where('user_id', $request->user()->id)
-            ->get();
+        $user = $request->user();
+
+        $query = Application::with(['user', 'jobPosting.company']);
+
+        if ($this->actsAsCompany($user)) {
+            $query->whereHas(
+                'jobPosting',
+                fn ($job) => $job->where('company_id', $user->company_id)
+            );
+        } else {
+            $query->where('user_id', $user->id);
+        }
 
         return response()->json([
             'message' => 'Daftar lamaran berhasil diambil',
-            'data' => $applications,
+            'data' => $query->latest()->get(),
         ]);
+    }
+
+    /** Hanya akun ber-role `company` yang benar-benar tertaut ke sebuah perusahaan. */
+    protected function actsAsCompany($user): bool
+    {
+        return $user->role === 'company' && $user->company_id !== null;
     }
 
     /**
@@ -86,17 +105,41 @@ class ApplicationController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Perusahaan mengubah status lamaran; pelamar hanya boleh menyunting pesan
+     * pengantarnya sendiri.
+     *
+     * Sebelumnya keduanya disaring dengan `user_id`, artinya justru pelamar
+     * yang bisa menaikkan statusnya sendiri menjadi "Accepted" sementara
+     * perusahaan tidak bisa menyentuhnya sama sekali.
      */
     public function update(Request $request, string $id)
     {
-        $application = Application::where('user_id', $request->user()->id)
-            ->findOrFail($id);
+        $user = $request->user();
+        $isCompany = $this->actsAsCompany($user);
+
+        $query = Application::query();
+
+        if ($isCompany) {
+            $query->whereHas(
+                'jobPosting',
+                fn ($job) => $job->where('company_id', $user->company_id)
+            );
+        } else {
+            $query->where('user_id', $user->id);
+        }
+
+        $application = $query->findOrFail($id);
 
         $validated = $request->validate([
             'status' => ['sometimes', 'in:Pending,Reviewed,Interview,Accepted,Rejected'],
             'message' => ['sometimes', 'nullable', 'string'],
         ]);
+
+        if (! $isCompany && isset($validated['status'])) {
+            return response()->json([
+                'message' => 'Hanya perusahaan pemilik lowongan yang dapat mengubah status lamaran',
+            ], 403);
+        }
 
         $oldStatus = $application->status;
 
