@@ -5,6 +5,7 @@ on:
     branches:
       - develop
       - main
+
   pull_request:
     branches:
       - develop
@@ -25,13 +26,16 @@ jobs:
     services:
       mysql:
         image: mysql:8.0
+
         env:
           MYSQL_DATABASE: skillbridge
           MYSQL_ROOT_PASSWORD: root
           MYSQL_PASSWORD: root
           MYSQL_USER: skillbridge
+
         ports:
           - 3306:3306
+
         options: >-
           --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
           --health-interval=10s
@@ -58,7 +62,7 @@ jobs:
       - name: Generate application key
         run: php artisan key:generate
 
-      - name: Configure database
+      - name: Clear Laravel config cache
         run: php artisan config:clear
 
       - name: Check database configuration
