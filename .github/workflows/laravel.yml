@@ -15,14 +15,6 @@ jobs:
   tests:
     runs-on: ubuntu-latest
 
-    env:
-      DB_CONNECTION: mysql
-      DB_HOST: 127.0.0.1
-      DB_PORT: 3306
-      DB_DATABASE: skillbridge
-      DB_USERNAME: skillbridge
-      DB_PASSWORD: root
-
     services:
       mysql:
         image: mysql:8.0
@@ -30,8 +22,8 @@ jobs:
         env:
           MYSQL_DATABASE: skillbridge
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_PASSWORD: root
           MYSQL_USER: skillbridge
+          MYSQL_PASSWORD: root
 
         ports:
           - 3306:3306
@@ -65,11 +57,34 @@ jobs:
       - name: Clear Laravel config cache
         run: php artisan config:clear
 
-      - name: Check database configuration
-        run: php artisan config:show database.connections.mysql
+      - name: Check MySQL connection
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: skillbridge
+          DB_USERNAME: skillbridge
+          DB_PASSWORD: root
+        run: |
+          php artisan config:show database.connections.mysql
+          php artisan db:show
 
       - name: Run migrations
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: skillbridge
+          DB_USERNAME: skillbridge
+          DB_PASSWORD: root
         run: php artisan migrate:fresh --force
 
       - name: Run tests
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: skillbridge
+          DB_USERNAME: skillbridge
+          DB_PASSWORD: root
         run: php artisan test
