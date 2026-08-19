@@ -25,7 +25,7 @@ jobs:
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uskillbridge -proot"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
@@ -52,12 +52,18 @@ jobs:
 
       - name: Configure database
         run: |
-          sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=mysql/' .env
-          sed -i 's/^DB_HOST=.*/DB_HOST=127.0.0.1/' .env
-          sed -i 's/^DB_PORT=.*/DB_PORT=3306/' .env
-          sed -i 's/^DB_DATABASE=.*/DB_DATABASE=skillbridge/' .env
-          sed -i 's/^DB_USERNAME=.*/DB_USERNAME=skillbridge/' .env
-          sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=root/' .env
+          echo "DB_CONNECTION=mysql" >> .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_PORT=3306" >> .env
+          echo "DB_DATABASE=skillbridge" >> .env
+          echo "DB_USERNAME=skillbridge" >> .env
+          echo "DB_PASSWORD=root" >> .env
+
+      - name: Clear configuration
+        run: php artisan config:clear
+
+      - name: Check database configuration
+        run: php artisan config:show database.connections.mysql
 
       - name: Run migrations
         run: php artisan migrate:fresh --force
