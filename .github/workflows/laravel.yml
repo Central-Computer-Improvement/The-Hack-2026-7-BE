@@ -74,8 +74,8 @@ jobs:
         run: php artisan key:generate --force
 
       - name: Clear Laravel configuration
-        run: |
-          php artisan config:clear
+        run: php artisan config:clear
+          
           
 
       - name: Show database configuration
