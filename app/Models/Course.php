@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-se Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Course extends Model
 {
@@ -17,6 +17,6 @@ class Course extends Model
 
     public function skill(): BelongsTo
     {
-        return $this->belongsTo(skill::class);
+        return $this->belongsTo(Skill::class);
     }
 }

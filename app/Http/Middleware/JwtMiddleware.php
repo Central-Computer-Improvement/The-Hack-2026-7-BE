@@ -2,10 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use App\Models\User;
 use Illuminate\Http\Request;
 
 class JwtMiddleware
@@ -29,14 +29,14 @@ class JwtMiddleware
         $userId = $decoded->sub ?? null;
 
         if (! $userId) {
-    return response()->json(['message' => 'Invalid token payload'], 401);
-}
+            return response()->json(['message' => 'Invalid token payload'], 401);
+        }
 
-$user = User::find($userId);
+        $user = User::find($userId);
 
         if (! $user) {
             return response()->json(['message' => 'User not found'], 401);
-}
+        }
 
         $request->setUserResolver(fn () => $user);
 

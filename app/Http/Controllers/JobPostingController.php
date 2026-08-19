@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\JobPosting;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use App\Models\JobPosting;
 
 class JobPostingController extends Controller
 {
@@ -20,7 +20,7 @@ class JobPostingController extends Controller
 
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -43,7 +43,7 @@ class JobPostingController extends Controller
 
         return response()->json([
             'message' => 'Daftar lowongan berhasil diambil',
-            'data' => $jobPostings
+            'data' => $jobPostings,
         ]);
     }
 
@@ -69,7 +69,7 @@ class JobPostingController extends Controller
 
         return response()->json([
             'message' => 'Lowongan berhasil dibuat',
-            'data' => $jobPosting
+            'data' => $jobPosting,
         ], 201);
     }
 
@@ -82,7 +82,7 @@ class JobPostingController extends Controller
 
         return response()->json([
             'message' => 'Detail lowongan berhasil diambil',
-            'data' => $jobPosting
+            'data' => $jobPosting,
         ]);
     }
 
@@ -110,7 +110,7 @@ class JobPostingController extends Controller
 
         return response()->json([
             'message' => 'Lowongan berhasil diperbarui',
-            'data' => $jobPosting->fresh()->load('company')
+            'data' => $jobPosting->fresh()->load('company'),
         ]);
     }
 
@@ -124,7 +124,7 @@ class JobPostingController extends Controller
         $jobPosting->delete();
 
         return response()->json([
-            'message' => 'Lowongan berhasil dihapus'
+            'message' => 'Lowongan berhasil dihapus',
         ]);
     }
 }

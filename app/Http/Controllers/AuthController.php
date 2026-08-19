@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Http\Request;
 use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
+use Illuminate\Http\Request;
 
 class AuthController
 {

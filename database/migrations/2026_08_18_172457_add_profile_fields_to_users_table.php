@@ -17,7 +17,7 @@ return new class extends Migration
             $table->enum('role', [
                 'admin',
                 'company',
-                'applicant'
+                'applicant',
             ])->default('applicant');
 
             $table->string('phone', 20)->nullable();

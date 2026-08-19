@@ -27,7 +27,7 @@ return new class extends Migration
                 'Full Time',
                 'Part Time',
                 'Internship',
-                'Contract'
+                'Contract',
             ]);
 
             $table->date('closing_date');

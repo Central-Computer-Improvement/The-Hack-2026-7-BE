@@ -10,35 +10,35 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('applications', function (Blueprint $table) {
-        $table->id();
+    {
+        Schema::create('applications', function (Blueprint $table) {
+            $table->id();
 
-        $table->foreignId('user_id')
-            ->constrained('users')
-            ->cascadeOnDelete();
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->cascadeOnDelete();
 
-        $table->foreignId('job_posting_id')
-            ->constrained('job_postings')
-            ->cascadeOnDelete();
+            $table->foreignId('job_posting_id')
+                ->constrained('job_postings')
+                ->cascadeOnDelete();
 
-        $table->text('message')->nullable();
+            $table->text('message')->nullable();
 
-        $table->enum('status', [
-            'Pending',
-            'Reviewed',
-            'Interview',
-            'Accepted',
-            'Rejected'
-        ])->default('Pending');
+            $table->enum('status', [
+                'Pending',
+                'Reviewed',
+                'Interview',
+                'Accepted',
+                'Rejected',
+            ])->default('Pending');
 
-        $table->timestamp('applied_date')->useCurrent();
+            $table->timestamp('applied_date')->useCurrent();
 
-        $table->timestamps();
+            $table->timestamps();
 
-        $table->unique(['user_id', 'job_posting_id']);
-    });
-}
+            $table->unique(['user_id', 'job_posting_id']);
+        });
+    }
 
     /**
      * Reverse the migrations.
