@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Course;
+use App\Models\Skill;
 use Illuminate\Database\Seeder;
 
 class CoursesSeeder extends Seeder
@@ -131,9 +132,21 @@ class CoursesSeeder extends Seeder
         foreach ($courses as $course) {
             Course::create([
                 ...$course,
+                'skill_id' => $this->skillIdFor($course['category']),
                 'thumbnail_url' => $this->thumbnailFor($course),
             ]);
         }
+    }
+
+    /**
+     * `courses.skill_id` is a required foreign key, so every course needs a
+     * skill row. The catalogue is organised by category rather than skill, so
+     * each category doubles as its skill — created on demand, which also means
+     * this seeder doesn't depend on SkillsSeeder having run first.
+     */
+    protected function skillIdFor(string $category): int
+    {
+        return Skill::firstOrCreate(['name' => $category])->id;
     }
 
     /**

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CourseController;
 use App\Http\Controllers\JobPostingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
