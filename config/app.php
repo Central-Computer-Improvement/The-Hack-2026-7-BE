@@ -107,6 +107,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | JWT Secret
+    |--------------------------------------------------------------------------
+    |
+    | Secret used to sign JSON Web Tokens. Set this in your `.env` as
+    | `JWT_SECRET`. Replace the default before deploying to production.
+    |
+    */
+
+    'jwt_secret' => env('JWT_SECRET', 'change_me'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Maintenance Mode Driver
     |--------------------------------------------------------------------------
     |

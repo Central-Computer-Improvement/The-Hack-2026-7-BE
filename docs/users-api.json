@@ -1,0 +1,220 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Users API",
+        "description": "Authentication, profile and recommendation endpoints",
+        "version": "1.0.0"
+    },
+    "servers": [
+        { "url": "http://localhost:8000" }
+    ],
+    "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        },
+        "schemas": {
+            "RegisterRequest": {
+                "type": "object",
+                "required": ["email", "password", "name"],
+                "properties": {
+                    "email": { "type": "string", "format": "email" },
+                    "password": { "type": "string", "minLength": 8 },
+                    "name": { "type": "string" }
+                }
+            },
+            "LoginRequest": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                    "email": { "type": "string", "format": "email" },
+                    "password": { "type": "string" }
+                }
+            },
+            "User": {
+                "type": "object",
+                "properties": {
+                    "id": { "type": "integer" },
+                    "name": { "type": "string" },
+                    "email": { "type": "string", "format": "email" },
+                    "bio": { "type": "string", "nullable": true },
+                    "skills": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": { "type": "integer" },
+                                "name": { "type": "string" }
+                            }
+                        },
+                        "description": "Array of user's skills (id + name)"
+                    }
+                }
+            },
+            "AuthResponse": {
+                "type": "object",
+                "properties": {
+                    "token": { "type": "string" },
+                    "token_type": { "type": "string", "example": "bearer" },
+                    "expires_in": { "type": "integer", "example": 3600 },
+                    "user": { "$ref": "#/components/schemas/User" }
+                }
+            },
+            "ProfileUpdate": {
+                "type": "object",
+                "properties": {
+                    "name": { "type": "string" },
+                    "bio": { "type": "string" },
+                    "skills": {
+                        "type": "array",
+                        "items": { "type": "string" },
+                        "description": "Array of skill names (strings). Missing skills will be created and then synced."
+                    }
+                }
+            },
+            "Recommendation": {
+                "type": "object",
+                "properties": {
+                    "title": { "type": "string" },
+                    "reason": { "type": "string" },
+                    "matched_skills": { "type": "array", "items": { "type": "string" } }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/api/auth/register": {
+            "post": {
+                "summary": "Register a new user",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": { "schema": { "$ref": "#/components/schemas/RegisterRequest" } }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User created",
+                        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } }
+                    },
+                    "400": { "description": "Validation error" }
+                }
+            }
+        },
+        "/api/auth/login": {
+            "post": {
+                "summary": "Authenticate user and return JWT token",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": { "schema": { "$ref": "#/components/schemas/LoginRequest" } }
+                    }
+                },
+                "responses": {
+                    "200": { "description": "Auth success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthResponse" } } } },
+                    "401": { "description": "Invalid credentials" }
+                }
+            }
+        },
+        "/api/auth/logout": {
+            "post": {
+                "summary": "Invalidate current token (logout)",
+                "security": [ { "BearerAuth": [] } ],
+                "responses": { "200": { "description": "Logged out" }, "401": { "description": "Unauthorized" } }
+            }
+        },
+        "/api/auth/refresh": {
+            "post": {
+                "summary": "Refresh JWT token",
+                "security": [ { "BearerAuth": [] } ],
+                "responses": { "200": { "description": "New token returned", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthResponse" } } } }, "401": { "description": "Unauthorized" } }
+            }
+        },
+        "/api/auth/me": {
+            "get": {
+                "summary": "Get currently authenticated user",
+                "security": [ { "BearerAuth": [] } ],
+                "responses": { "200": { "description": "User object", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } }, "401": { "description": "Unauthorized" } }
+            }
+        },
+        "/api/profile": {
+            "get": {
+                "summary": "Get authenticated user's profile",
+                "security": [ { "BearerAuth": [] } ],
+                "responses": {
+                    "200": {
+                        "description": "Profile",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/User" },
+                                "examples": {
+                                    "sample": {
+                                        "value": {
+                                            "id": 1,
+                                            "name": "Test User",
+                                            "email": "test@example.com",
+                                            "bio": "Full-stack developer",
+                                            "skills": [ { "id": 1, "name": "PHP" }, { "id": 2, "name": "MySQL" } ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": { "description": "Unauthorized" }
+                }
+            },
+            "put": {
+                "summary": "Update authenticated user's profile (sync skills)",
+                "security": [ { "BearerAuth": [] } ],
+                "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProfileUpdate" } } } },
+                "responses": { "200": { "description": "Updated profile", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } }, "400": { "description": "Validation error" }, "401": { "description": "Unauthorized" } }
+            }
+        },
+        "/api/recommendations/jobs": {
+            "get": {
+                "summary": "Get job recommendations for authenticated user",
+                "security": [ { "BearerAuth": [] } ],
+                "responses": {
+                    "200": {
+                        "description": "List of job recommendations",
+                        "content": {
+                            "application/json": {
+                                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Recommendation" } },
+                                "examples": {
+                                    "sample": {
+                                        "value": [
+                                            { "title": "Backend Developer", "reason": "Matches PHP and SQL skills", "matched_skills": ["PHP","MySQL"] }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": { "description": "Unauthorized" }
+                }
+            }
+        },
+        "/api/recommendations/courses": {
+            "get": {
+                "summary": "Get course recommendations for authenticated user",
+                "security": [ { "BearerAuth": [] } ],
+                "responses": {
+                    "200": {
+                        "description": "List of course recommendations",
+                        "content": {
+                            "application/json": {
+                                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Recommendation" } },
+                                "examples": { "sample": { "value": [ { "title": "Advanced PHP", "reason": "Improve backend skills", "matched_skills": ["PHP"] } ] } }
+                            }
+                        }
+                    },
+                    "401": { "description": "Unauthorized" }
+                }
+            }
+        }
+    }
+}
